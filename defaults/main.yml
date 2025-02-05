@@ -13,5 +13,3 @@ firefox_download_dir: "/tmp"
 
 firefox_install_dir: "/opt/"
 firefox_install_path: "{{ firefox_install_dir }}/firefox-{{ firefox_version }}"
-firefox_logo_path: "{{ firefox_install_dir }}/firefox/browser/chrome/icons/default/default128.png"
-firefox_desktop_icon: false
