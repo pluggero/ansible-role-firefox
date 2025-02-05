@@ -35,7 +35,7 @@
               changed_when: false
               register: firefox_checksum_file_cmd
 
-            #TODO: Fix regex_search to match the checksum
+            # BUG: regex_search does not match the checksum
             - name: Parse checksum file for tarball
               ansible.builtin.set_fact:
                 firefox_download_checksum: "{{ firefox_checksum_file_cmd.stdout | regex_search('([0-9a-f]+)  {{ firefox_arch }}\/{{ firefox_language }}\/firefox-{{ firefox_version }}\\.tar\\.xz', '\\1') }}"
@@ -43,6 +43,17 @@
             - name: Debug checksum
               ansible.builtin.debug:
                 var: firefox_download_checksum
+
+            - name: Remove checksum file
+              ansible.builtin.file:
+                path: "{{ firefox_download_dir }}/SHA256SUMS"
+                state: absent
+              become: true
+
+        - name: Determine Firefox archive type based on version
+          ansible.builtin.set_fact:
+            firefox_archive_type: >-
+              {{ 'tar.bz2' if firefox_version is version('135.0', '<') else 'tar.xz' }}
 
         - name: Download firefox package
           ansible.builtin.get_url:
@@ -65,7 +76,7 @@
 
         - name: Extract archive
           ansible.builtin.unarchive:
-            src: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.tar.xz"
+            src: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.{{ firefox_archive_type }}"
             dest: "{{ firefox_install_path }}"
             remote_src: true
             extra_opts: ["--strip-components=1"]
@@ -85,8 +96,9 @@
 
         - name: Remove archive
           ansible.builtin.file:
-            path: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.tar.xz"
+            path: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.{{ firefox_archive_type }}"
             state: absent
+          become: true
 
     - name: Create desktop icon
       block:

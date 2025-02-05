@@ -5,6 +5,7 @@
       ansible.builtin.find:
         paths: "{{ firefox_install_dir }}"
         patterns: "firefox-*"
+        file_type: directory
       register: firefox_install_folder
 
     - name: Remove existing firefox installation folder
@@ -14,3 +15,10 @@
       loop: "{{ firefox_install_folder.files }}"
       loop_control:
         loop_var: folder
+      become: true
+
+    - name: Remove firefox symlink
+      ansible.builtin.file:
+        path: "/usr/local/bin/firefox"
+        state: absent
+      become: true
