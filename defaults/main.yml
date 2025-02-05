@@ -1,0 +1,17 @@
+---
+firefox_config_dir: "{{ ansible_env.HOME }}/.config/firefox"
+
+firefox_version: "135.0"
+firefox_install_method: "dynamic"
+firefox_force_install: false
+
+firefox_arch: "linux-x86_64"
+firefox_language: "en-US"
+firefox_download_url: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/{{ firefox_arch }}/{{ firefox_language }}/firefox-{{ firefox_version }}.tar.xz"
+firefox_download_checksum_url: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/SHA256SUMS"
+firefox_download_dir: "/tmp"
+
+firefox_install_dir: "/opt/"
+firefox_install_path: "{{ firefox_install_dir }}/firefox-{{ firefox_version }}"
+firefox_logo_path: "{{ firefox_install_dir }}/firefox/browser/chrome/icons/default/default128.png"
+firefox_desktop_icon: false

@@ -1,0 +1,16 @@
+---
+- name: Uninstall firefox from source
+  block:
+    - name: Find existing firefox folder in {{ firefox_install_dir }}
+      ansible.builtin.find:
+        paths: "{{ firefox_install_dir }}"
+        patterns: "firefox-*"
+      register: firefox_install_folder
+
+    - name: Remove existing firefox installation folder
+      ansible.builtin.file:
+        path: "{{ folder.path }}"
+        state: absent
+      loop: "{{ firefox_install_folder.files }}"
+      loop_control:
+        loop_var: folder

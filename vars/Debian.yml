@@ -1,0 +1,8 @@
+---
+firefox_dep_pkgs:
+  - libgtk-3-0
+  - libasound2
+  - libx11-xcb1
+
+firefox_distro_pkgs:
+  - firefox-esr

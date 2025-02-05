@@ -1,0 +1,109 @@
+---
+- name: Install firefox from source
+  block:
+    - name: Import installed firefox version check
+      ansible.builtin.include_tasks: noauto_check_installed_version.yml
+      when: firefox_installed_version is not defined
+
+    - name: Force install if the version numbers do not match
+      ansible.builtin.set_fact:
+        firefox_force_install: true
+      when:
+        - firefox_installed_version is defined
+        - firefox_installed_version != firefox_version
+
+    - name: Install firefox from source
+      when: firefox_installed_version is not defined or firefox_force_install
+      block:
+        - name: Uninstall current firefox installation
+          ansible.builtin.include_tasks: noauto_uninstall.yml
+
+        - name: Identify checksum
+          block:
+            - name: Download checksum file
+              ansible.builtin.get_url:
+                url: "{{ firefox_download_checksum_url }}"
+                dest: "{{ firefox_download_dir }}"
+                mode: "0755"
+                owner: root
+                group: root
+              become: true
+
+            - name: Get checksum file content
+              ansible.builtin.command:
+                cmd: "cat {{ firefox_download_dir }}/SHA256SUMS"
+              changed_when: false
+              register: firefox_checksum_file_cmd
+
+            #TODO: Fix regex_search to match the checksum
+            - name: Parse checksum file for tarball
+              ansible.builtin.set_fact:
+                firefox_download_checksum: "{{ firefox_checksum_file_cmd.stdout | regex_search('([0-9a-f]+)  {{ firefox_arch }}\/{{ firefox_language }}\/firefox-{{ firefox_version }}\\.tar\\.xz', '\\1') }}"
+
+            - name: Debug checksum
+              ansible.builtin.debug:
+                var: firefox_download_checksum
+
+        - name: Download firefox package
+          ansible.builtin.get_url:
+            url: "{{ firefox_download_url }}"
+            dest: "{{ firefox_download_dir }}"
+            checksum: "{{ firefox_download_checksum }}"
+            mode: "0755"
+            owner: root
+            group: root
+          become: true
+
+        - name: Ensure firefox installation folder exists
+          ansible.builtin.file:
+            path: "{{ firefox_install_path }}"
+            state: directory
+            mode: "0755"
+            owner: root
+            group: root
+          become: true
+
+        - name: Extract archive
+          ansible.builtin.unarchive:
+            src: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.tar.xz"
+            dest: "{{ firefox_install_path }}"
+            remote_src: true
+            extra_opts: ["--strip-components=1"]
+            creates: "{{ firefox_install_path }}/firefox"
+          become: true
+
+        - name: Create firefox symlink
+          ansible.builtin.file:
+            src: "{{ firefox_install_path }}/firefox"
+            dest: "/usr/local/bin/firefox"
+            state: link
+            force: true
+            mode: "0755"
+            owner: root
+            group: root
+          become: true
+
+        - name: Remove archive
+          ansible.builtin.file:
+            path: "{{ firefox_download_dir }}/firefox-{{ firefox_version }}.tar.xz"
+            state: absent
+
+    - name: Create desktop icon
+      block:
+        - name: Ensure desktop icon directory exists
+          ansible.builtin.file:
+            path: "/usr/local/share/applications"
+            state: directory
+            mode: "0755"
+            owner: root
+            group: root
+          become: true
+
+        - name: Create desktop icon
+          ansible.builtin.template:
+            src: "firefox.desktop.j2"
+            dest: "/usr/local/share/applications/firefox.desktop"
+            mode: "0644"
+            owner: root
+            group: root
+          become: true
