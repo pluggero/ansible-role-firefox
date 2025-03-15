@@ -1,0 +1,9 @@
+// Managed by Ansible, please don't edit manually
+
+{% for user_pref in firefox_profile_user_prefs %}
+{% if user_pref.value.lower() in ["true", "false"] or user_pref.value.isdigit() or user_pref.value.replace('.', '', 1).isdigit() %}
+user_pref("{{ user_pref.name }}", {{ user_pref.value }});
+{% else %}
+user_pref("{{ user_pref.name }}", "{{ user_pref.value }}");
+{% endif %}
+{% endfor %}

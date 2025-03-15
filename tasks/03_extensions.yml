@@ -1,0 +1,22 @@
+---
+- name: Manage Firefox extensions
+  block:
+    - name: Ensure extensions folder exists
+      ansible.builtin.file:
+        path: "{{ firefox_config_dir }}/{{ firefox_profile_dir }}/extensions"
+        state: directory
+        mode: "0755"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Download Firefox extensions
+      ansible.builtin.get_url:
+        url: "{{ extension.url }}"
+        dest: "{{ firefox_config_dir }}/{{ firefox_profile_dir }}/extensions/{{ extension.id }}.xpi"
+        mode: "0644"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      loop: "{{ firefox_extensions }}"
+      loop_control:
+        loop_var: extension
+      when: firefox_extensions is defined

@@ -1,5 +1,5 @@
 ---
-firefox_config_dir: "{{ ansible_env.HOME }}/.config/firefox"
+firefox_config_dir: "{{ ansible_env.HOME }}/.mozilla/firefox"
 
 firefox_version: "136.0.1"
 firefox_install_method: "dynamic"
@@ -13,3 +13,23 @@ firefox_download_dir: "/tmp"
 
 firefox_install_dir: "/opt/"
 firefox_install_path: "{{ firefox_install_dir }}/firefox-{{ firefox_version }}"
+
+firefox_env_vars:
+  # Prevents Firefox from creating new profiles
+  - name: "MOZ_LEGACY_PROFILES"
+    value: "1"
+  - name: "MOZ_ALLOW_DOWNGRADE"
+    value: "1"
+
+firefox_profile_config_path: "{{ firefox_config_dir }}/profiles.ini"
+firefox_profile_name: "Default"
+firefox_profile_dir: "{{ firefox_profile_name | lower }}"
+firefox_profile_user_prefs: []
+# - name: "browser.fullscreen.autohide"
+#   value: "false"
+
+# https://mozilla.github.io/policy-templates/#extensions
+firefox_extensions: []
+# - id: "uBlock0@raymondhill.net"
+#   mode: "force_installed"
+#   url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
