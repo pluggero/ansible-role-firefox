@@ -4,5 +4,4 @@ firefox_dep_pkgs:
   - libasound2
   - libx11-xcb1
 
-firefox_distro_pkgs:
-  - firefox-esr
+firefox_distro_pkgs: []

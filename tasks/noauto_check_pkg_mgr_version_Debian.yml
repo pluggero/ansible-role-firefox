@@ -15,15 +15,16 @@
 
     - name: Get firefox version from package manager
       ansible.builtin.command:
-        cmd: "apt show {{ firefox_distro_pkgs[0] }}"
+        cmd: "apt show {{ firefox_distro_pkgs | first }}"
       changed_when: false
       failed_when: false
       ignore_errors: true
       register: firefox_pkg_mgr_version_cmd
+      when: "firefox_distro_pkgs is defined and firefox_distro_pkgs | length > 0"
 
     - name: Extract only the version into a variable
       ansible.builtin.set_fact:
-        firefox_pkg_mgr_version: "{{ (firefox_pkg_mgr_version_cmd.stdout | regex_search('Version:\\ ([\\d\\.]+)', '\\1', multiline=True))[0] }}"
+        firefox_pkg_mgr_version: "{{ (firefox_pkg_mgr_version_cmd.stdout | default('') | regex_search('Version:\\ ([\\d\\.]+)', '\\1', multiline=True) | default([''], true)) | first}}"
 
     - name: Debug firefox version from package manager
       ansible.builtin.debug:
