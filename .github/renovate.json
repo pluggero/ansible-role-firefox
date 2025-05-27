@@ -1,0 +1,28 @@
+{
+  "extends": ["config:best-practices", ":disableRateLimiting"],
+  "enabledManagers": ["github-actions", "pip_requirements", "custom.regex"],
+  "assignees": ["pluggero"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^defaults/main\\.yml$/"],
+      "matchStrings": ["firefox_version:\\s+\"(?<currentValue>[\\d\\.]+)\""],
+      "datasourceTemplate": "custom.firefox",
+      "depNameTemplate": "firefox",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "releases\/(?<version>.+)"
+    }
+  ],
+  "customDatasources": {
+    "firefox": {
+      "defaultRegistryUrlTemplate": "https://ftp.mozilla.org/pub/firefox/releases/",
+      "format": "html"
+    }
+  },
+  "packageRules": [
+    {
+      "matchPackageNames": ["firefox"],
+      "groupName": "Update Firefox version"
+    }
+  ]
+}
