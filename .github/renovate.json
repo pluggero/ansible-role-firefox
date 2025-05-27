@@ -10,7 +10,7 @@
       "datasourceTemplate": "custom.firefox",
       "depNameTemplate": "firefox",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "releases\/(?<version>.+)"
+      "extractVersionTemplate": "releases\\/(?<version>.+)"
     }
   ],
   "customDatasources": {
