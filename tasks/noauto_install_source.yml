@@ -35,6 +35,7 @@
                 cmd: "cat {{ firefox_download_dir }}/SHA256SUMS"
               changed_when: false
               register: firefox_checksum_file_cmd
+              become: true
 
             # BUG: regex_search does not match the checksum
             - name: Parse checksum file for tarball
