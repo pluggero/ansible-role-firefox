@@ -1,7 +1,7 @@
 ---
 firefox_config_dir: "{{ ansible_env.HOME }}/.mozilla/firefox"
 
-firefox_version: "145.0.1"
+firefox_version: "147.0.1"
 firefox_install_method: "dynamic"
 firefox_force_install: false
 
