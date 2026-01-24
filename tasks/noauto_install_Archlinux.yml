@@ -5,7 +5,6 @@
   when: ansible_pkg_mgr != "pacman"
 
 - name: Install firefox via pacman
-  when: ansible_pkg_mgr == "pacman"
   block:
     - name: Update pacman cache
       community.general.pacman:
@@ -15,6 +14,9 @@
 
     - name: Ensure firefox is installed
       community.general.pacman:
-        name: "{{ firefox_distro_pkgs }}"
+        name: "{{ package }}"
         state: present
+      loop: "{{ firefox_distro_pkgs }}"
+      loop_control:
+        loop_var: package
       become: true

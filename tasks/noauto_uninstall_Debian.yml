@@ -5,7 +5,6 @@
   when: ansible_pkg_mgr != "apt"
 
 - name: Uninstall firefox in apt
-  when: ansible_pkg_mgr == "apt"
   block:
     - name: Update apt cache
       ansible.builtin.apt:
@@ -15,6 +14,9 @@
 
     - name: Remove firefox if it is installed
       ansible.builtin.apt:
-        name: "{{ firefox_distro_pkgs }}"
+        name: "{{ package }}"
         state: absent
+      loop: "{{ firefox_distro_pkgs }}"
+      loop_control:
+        loop_var: package
       become: true
