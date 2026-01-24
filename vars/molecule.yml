@@ -1,0 +1,8 @@
+---
+firefox_profile_user_prefs:
+  - name: "browser.fullscreen.autohide"
+    value: "false"
+firefox_extensions:
+  - id: "uBlock0@raymondhill.net"
+    mode: "force_installed"
+    url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
