@@ -22,3 +22,31 @@
         path: "/usr/local/bin/firefox"
         state: absent
       become: true
+
+    - name: Remove desktop file
+      ansible.builtin.file:
+        path: "/usr/local/share/applications/firefox.desktop"
+        state: absent
+      become: true
+      failed_when: false
+
+    - name: Remove Firefox icon from system directory
+      ansible.builtin.file:
+        path: "/usr/share/icons/hicolor/128x128/apps/firefox.png"
+        state: absent
+      become: true
+      failed_when: false
+
+    - name: Update desktop database after removal
+      ansible.builtin.command:
+        cmd: update-desktop-database /usr/local/share/applications
+      changed_when: false
+      failed_when: false
+      become: true
+
+    - name: Update icon cache after removal
+      ansible.builtin.command:
+        cmd: gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+      changed_when: false
+      failed_when: false
+      become: true

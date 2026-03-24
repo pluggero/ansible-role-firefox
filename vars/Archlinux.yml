@@ -3,6 +3,7 @@ firefox_dep_pkgs:
   - gtk3
   - alsa-lib
   - libx11
+  - desktop-file-utils
 
 firefox_distro_pkgs:
   - firefox

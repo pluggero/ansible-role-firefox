@@ -3,5 +3,6 @@ firefox_dep_pkgs:
   - libgtk-3-0t64
   - libasound2t64
   - libx11-xcb1
+  - desktop-file-utils
 
 firefox_distro_pkgs: []
