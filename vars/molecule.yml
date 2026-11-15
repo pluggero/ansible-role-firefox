@@ -6,3 +6,22 @@ firefox_extensions:
   - id: "uBlock0@raymondhill.net"
     mode: "force_installed"
     url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+# Test-only self-signed CA, key discarded
+firefox_certificates:
+  - name: "molecule-test-root-ca"
+    content: >-
+      MIIBdTCCARygAwIBAgIULAl2cP/zRbi2j3ANew+BHY8zd7EwCgYIKoZIzj0EAwIwIDEeMBwGA1UEAwwV
+      TW9sZWN1bGUgVGVzdCBSb290IENBMCAXDTI2MTExNTE5MTMzM1oYDzIxMjYxMDIyMTkxMzMzWjAgMR4w
+      HAYDVQQDDBVNb2xlY3VsZSBUZXN0IFJvb3QgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASx2Cbw
+      X509bXOXQWnYSRnShrq3pmi2LnWnD8CJYL8SivzmxNoHFP4HI3equ4cRiumbWotuTGBdYEkejSn2g5Yq
+      ozIwMDAdBgNVHQ4EFgQUD2UyWUf41gED3grxMVlAuhbG4JMwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjO
+      PQQDAgNHADBEAiB+mTLIfRfK+qK0LV0l7/6K8cO+I9Io47c3GNl0l4/5gwIgLst/RNIYmDVRkwDSIz8l
+      PapAxMrbkP9EUzvQf8HWyus=
+firefox_managed_bookmarks:
+  - name: "Mozilla"
+    url: "https://www.mozilla.org"
+  - name: "Docs"
+    children:
+      - name: "Firefox policies"
+        url: "https://mozilla.github.io/policy-templates/"
+firefox_bookmarks_toolbar_display: "always"

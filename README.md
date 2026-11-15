@@ -30,6 +30,45 @@ The following methods are available:
   - **NOTE**: This method installs the latest version available in the package manager and not the version defined in `firefox_version`.
 - `dynamic`: Installs Firefox from package manager if available in the correct version, otherwise installs from source
 
+```yaml
+firefox_policies_dir: "/etc/firefox/policies"
+```
+
+System-wide [enterprise policies](https://mozilla.github.io/policy-templates/) for all users. Check them in Firefox at `about:policies`.
+
+```yaml
+firefox_extensions:
+  - id: "uBlock0@raymondhill.net"
+    mode: "force_installed" # normal_installed | allowed | blocked
+    url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+firefox_extensions_lockdown: false
+```
+
+Extensions to manage. If `firefox_extensions_lockdown` is `true`, all other extensions are blocked.
+
+```yaml
+firefox_certificates:
+  - name: "corp-root-ca"
+    content: "MIIDdzCCAl+gAwIBAgIE..."
+firefox_certificates_dir: "/etc/firefox/certificates"
+```
+
+Trusted certificates. `content` is the base64-encoded DER certificate (`openssl x509 -in ca.pem -outform DER | base64 -w0`). Unlisted `*.pem` files in `firefox_certificates_dir` are removed.
+
+```yaml
+firefox_managed_bookmarks_folder: "Managed bookmarks"
+firefox_managed_bookmarks:
+  - name: "Wiki"
+    url: "https://wiki.example.com"
+  - name: "Tools"
+    children:
+      - name: "Grafana"
+        url: "https://grafana.example.com"
+firefox_bookmarks_toolbar_display: "always" # never | newtab | "" (unmanaged)
+```
+
+Read-only bookmarks folder on the bookmarks toolbar. Users' own bookmarks are kept.
+
 ## Dependencies
 
 None.

@@ -5,6 +5,8 @@
 
   vars_files:
     - ../../defaults/main.yml
+    - ../../vars/molecule.yml
+    - ../../vars/main.yml
 
   vars:
     ansible_user: ansible
@@ -18,3 +20,31 @@
       ansible.builtin.assert:
         that:
           - "firefox_installed_version == firefox_version"
+
+    - name: Read installed certificate
+      ansible.builtin.slurp:
+        src: "{{ __firefox_certificate_files | first }}"
+      register: verify_certificate
+
+    - name: Assert certificate is a PEM file
+      ansible.builtin.assert:
+        that:
+          - (verify_certificate.content | b64decode) is match('-----BEGIN CERTIFICATE-----\n')
+          - (verify_certificate.content | b64decode) is search('\n-----END CERTIFICATE-----\n$')
+
+    - name: Read enterprise policies
+      ansible.builtin.slurp:
+        src: "{{ firefox_policies_dir }}/policies.json"
+      register: verify_policies_file
+
+    - name: Assert enterprise policies are correct
+      vars:
+        verify_policies: "{{ (verify_policies_file.content | b64decode | from_json).policies }}"
+        verify_bookmarks: "{{ [{'toplevel_name': firefox_managed_bookmarks_folder}] + firefox_managed_bookmarks }}"
+      ansible.builtin.assert:
+        that:
+          - verify_policies.Certificates.Install == __firefox_certificate_files
+          - verify_policies.ManagedBookmarks == verify_bookmarks
+          - verify_policies.DisplayBookmarksToolbar == firefox_bookmarks_toolbar_display
+          - "'*' not in verify_policies.ExtensionSettings"
+          - firefox_extensions[0].id in verify_policies.ExtensionSettings

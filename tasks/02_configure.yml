@@ -34,13 +34,38 @@
         group: "{{ ansible_user }}"
 
     # https://mozilla.github.io/policy-templates/
-    - name: Enable enterprise policies
-      ansible.builtin.template:
-        src: "policies.json.j2"
-        dest: "{{ firefox_config_dir }}/{{ firefox_profile_dir }}/policies.json"
-        mode: "0644"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
+    - name: Manage enterprise policies
+      block:
+        - name: Validate bookmarks toolbar display setting
+          ansible.builtin.assert:
+            that:
+              - firefox_bookmarks_toolbar_display in ['', 'always', 'never', 'newtab']
+            fail_msg: "firefox_bookmarks_toolbar_display must be one of: '', 'always', 'never', 'newtab'."
+            quiet: true
+
+        - name: Ensure policies folder exists
+          ansible.builtin.file:
+            path: "{{ firefox_policies_dir }}"
+            state: directory
+            mode: "0755"
+            owner: root
+            group: root
+          become: true
+
+        - name: Enable enterprise policies
+          ansible.builtin.template:
+            src: "policies.json.j2"
+            dest: "{{ firefox_policies_dir }}/policies.json"
+            mode: "0644"
+            owner: root
+            group: root
+          become: true
+
+        # Firefox ignores policies in the profile folder
+        - name: Remove legacy profile policies
+          ansible.builtin.file:
+            path: "{{ firefox_config_dir }}/{{ firefox_profile_dir }}/policies.json"
+            state: absent
 
     - name: Add required environment variables
       ansible.builtin.copy:
