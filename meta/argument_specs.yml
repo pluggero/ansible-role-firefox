@@ -10,7 +10,7 @@ argument_specs:
 
       firefox_version:
         type: str
-        default: "153.0.3"
+        default: "153.0.4"
         description: The version of Firefox to install.
 
       firefox_install_method:
