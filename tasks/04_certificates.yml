@@ -1,0 +1,68 @@
+---
+- name: Manage trusted certificates
+  block:
+    - name: Validate certificate names are unique
+      ansible.builtin.assert:
+        that:
+          - firefox_certificates | map(attribute='name') | unique | length == firefox_certificates | length
+        fail_msg: "Each entry in firefox_certificates needs a unique name."
+        quiet: true
+
+    - name: Validate certificate definitions
+      ansible.builtin.assert:
+        that:
+          - cert.name is string
+          - cert.name is match('^[A-Za-z0-9._-]+$')
+          - cert.content is string
+          - cert.content is match('^[A-Za-z0-9+/=\s]+$')
+        fail_msg: >-
+          Certificate '{{ cert.name | default('?') }}' is invalid: 'name' may only contain
+          letters, digits, '.', '_' and '-', and 'content' must be a base64-encoded DER certificate.
+        quiet: true
+      loop: "{{ firefox_certificates }}"
+      loop_control:
+        loop_var: cert
+        label: "{{ cert.name | default('?') }}"
+
+    - name: Ensure certificates folder exists
+      ansible.builtin.file:
+        path: "{{ firefox_certificates_dir }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+      become: true
+
+    - name: Install trusted certificates
+      ansible.builtin.copy:
+        dest: "{{ __firefox_certificate_files[cert_index] }}"
+        content: |
+          -----BEGIN CERTIFICATE-----
+          {% for line in cert.content | regex_replace('\s+', '') | regex_findall('.{1,64}') %}
+          {{ line }}
+          {% endfor %}
+          -----END CERTIFICATE-----
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ firefox_certificates }}"
+      loop_control:
+        loop_var: cert
+        index_var: cert_index
+        label: "{{ cert.name }}"
+      become: true
+
+    - name: Find installed certificates
+      ansible.builtin.find:
+        paths: "{{ firefox_certificates_dir }}"
+        patterns: "*.pem"
+      register: firefox_installed_certificates
+
+    - name: Remove certificates no longer defined
+      ansible.builtin.file:
+        path: "{{ cert_file }}"
+        state: absent
+      loop: "{{ firefox_installed_certificates.files | map(attribute='path') | difference(__firefox_certificate_files) }}"
+      loop_control:
+        loop_var: cert_file
+      become: true

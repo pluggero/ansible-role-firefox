@@ -1,29 +1,32 @@
-{
-  "policies": {
-    "ExtensionSettings": {
-      "*": {
-        "install_sources": ["https://addons.mozilla.org/"],
-        "installation_mode": "blocked",
-        "allowed_types": ["extension"]
-      },
-{% if firefox_extensions %}
-{% for extension in firefox_extensions %}
-      "{{ extension.id }}": {
-        "installation_mode": "{{ extension.mode }}",
-        "install_url": "{{ extension.url }}"
-      },
-{% endfor %}
-{% endif %}
-      "*": {
-        "installation_mode": "allowed",
-        "install_sources": ["https://addons.mozilla.org/"],
-        "allowed_types": ["dictionary", "langpack"]
+{#- https://mozilla.github.io/policy-templates/ -#}
+{%- set lockdown = firefox_extensions_lockdown | bool -%}
+{%- set extension_settings = {} -%}
+{%- if lockdown -%}
+{%-   set _ = extension_settings.update({'*': {'installation_mode': 'blocked'}}) -%}
+{%- endif -%}
+{%- for extension in firefox_extensions -%}
+{%-   set _ = extension_settings.update({extension.id: {'installation_mode': extension.mode, 'install_url': extension.url}}) -%}
+{%- endfor -%}
+
+{%- set policies = {
+      'ExtensionSettings': extension_settings,
+      'ExtensionUpdate': true,
+      'InstallAddonsPermission': {
+        'Allow': ['https://addons.mozilla.org'],
+        'Default': not lockdown
       }
-    },
-    "ExtensionUpdate": true,
-    "InstallAddonsPermission": {
-      "Allow": ["https://addons.mozilla.org"],
-      "Default": true
-    }
-  }
-}
+    } -%}
+
+{%- if __firefox_certificate_files -%}
+{%-   set _ = policies.update({'Certificates': {'Install': __firefox_certificate_files}}) -%}
+{%- endif -%}
+
+{%- if firefox_managed_bookmarks -%}
+{%-   set _ = policies.update({'ManagedBookmarks': [{'toplevel_name': firefox_managed_bookmarks_folder}] + firefox_managed_bookmarks}) -%}
+{%- endif -%}
+
+{%- if firefox_bookmarks_toolbar_display -%}
+{%-   set _ = policies.update({'DisplayBookmarksToolbar': firefox_bookmarks_toolbar_display}) -%}
+{%- endif -%}
+
+{{ {'policies': policies} | to_nice_json(indent=2) }}

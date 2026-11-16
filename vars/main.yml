@@ -1,0 +1,7 @@
+---
+# Internal, do not override
+__firefox_certificate_files: >-
+  {{ firefox_certificates
+     | map(attribute='name')
+     | map('regex_replace', '^(.+)$', firefox_certificates_dir ~ '/\1.pem')
+     | list }}

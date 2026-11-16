@@ -28,8 +28,35 @@ firefox_profile_user_prefs: []
 # - name: "browser.fullscreen.autohide"
 #   value: "false"
 
+firefox_policies_dir: "/etc/firefox/policies"
+
 # https://mozilla.github.io/policy-templates/#extensions
 firefox_extensions: []
 # - id: "uBlock0@raymondhill.net"
 #   mode: "force_installed"
 #   url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+
+# Block all extensions not listed in firefox_extensions
+firefox_extensions_lockdown: false
+
+# https://mozilla.github.io/policy-templates/#certificates--install
+# content: base64-encoded DER
+firefox_certificates: []
+# - name: "corp-root-ca"
+#   content: "MIIDdzCCAl+gAwIBAgIE..."
+
+# Unlisted *.pem files in this folder are removed
+firefox_certificates_dir: "/etc/firefox/certificates"
+
+# https://mozilla.github.io/policy-templates/#managedbookmarks
+firefox_managed_bookmarks_folder: "Managed bookmarks"
+firefox_managed_bookmarks: []
+# - name: "Wiki"
+#   url: "https://wiki.example.com"
+# - name: "Tools"
+#   children:
+#     - name: "Grafana"
+#       url: "https://grafana.example.com"
+
+# "always" | "never" | "newtab" | "" (unmanaged)
+firefox_bookmarks_toolbar_display: ""
