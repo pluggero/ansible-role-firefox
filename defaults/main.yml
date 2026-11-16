@@ -1,5 +1,5 @@
 ---
-firefox_config_dir: "{{ ansible_env.HOME }}/.mozilla/firefox"
+firefox_config_dir: "{{ ansible_facts.env.HOME }}/.mozilla/firefox"
 
 firefox_version: "153.0.3"
 firefox_install_method: "dynamic"
@@ -7,6 +7,8 @@ firefox_force_install: false
 
 firefox_arch: "linux-x86_64"
 firefox_language: "en-US"
+# Overridden at install time based on firefox_version (see tasks/noauto_install_source.yml)
+firefox_archive_type: "tar.xz"
 firefox_download_url: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/{{ firefox_arch }}/{{ firefox_language }}/firefox-{{ firefox_version }}.{{ firefox_archive_type }}"
 firefox_download_checksum_url: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/SHA256SUMS"
 firefox_download_dir: "/tmp"

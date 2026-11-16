@@ -1,0 +1,208 @@
+---
+argument_specs:
+  main:
+    short_description: Installs a basic configuration of Firefox on various Linux distributions.
+    options:
+      firefox_config_dir:
+        type: str
+        default: "{{ ansible_facts.env.HOME }}/.mozilla/firefox"
+        description: Directory containing the user's Firefox profile configuration.
+
+      firefox_version:
+        type: str
+        default: "153.0.3"
+        description: The version of Firefox to install.
+
+      firefox_install_method:
+        type: str
+        default: "dynamic"
+        choices:
+          - source
+          - package
+          - dynamic
+        description: >-
+          Method used to install Firefox. "source" installs from source, "package" installs
+          from the distribution's package manager (ignores firefox_version), "dynamic" installs
+          from the package manager if the correct version is available, otherwise from source.
+
+      firefox_force_install:
+        type: bool
+        default: false
+        description: Force reinstallation of Firefox even if the target version is already installed.
+
+      firefox_arch:
+        type: str
+        default: "linux-x86_64"
+        description: Target architecture used when building the Firefox download URL.
+
+      firefox_language:
+        type: str
+        default: "en-US"
+        description: Language/locale used when building the Firefox download URL.
+
+      firefox_archive_type:
+        type: str
+        default: "tar.xz"
+        description: Archive type of the Firefox download. Overridden at install time based on firefox_version.
+
+      firefox_download_url:
+        type: str
+        default: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/{{ firefox_arch }}/{{ firefox_language }}/firefox-{{ firefox_version }}.{{ firefox_archive_type }}"
+        description: URL used to download the Firefox archive.
+
+      firefox_download_checksum_url:
+        type: str
+        default: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version }}/SHA256SUMS"
+        description: URL used to download the SHA256SUMS file for checksum verification.
+
+      firefox_download_dir:
+        type: str
+        default: "/tmp"
+        description: Local directory the Firefox archive is downloaded to.
+
+      firefox_install_dir:
+        type: str
+        default: "/opt/"
+        description: Base directory Firefox is installed into.
+
+      firefox_install_path:
+        type: str
+        default: "{{ firefox_install_dir }}/firefox-{{ firefox_version }}"
+        description: Full path to the installed Firefox version directory.
+
+      firefox_env_vars:
+        type: list
+        elements: dict
+        default:
+          - name: "MOZ_LEGACY_PROFILES"
+            value: "1"
+          - name: "MOZ_ALLOW_DOWNGRADE"
+            value: "1"
+        description: List of environment variables to configure for Firefox.
+        options:
+          name:
+            type: str
+            required: true
+            description: Name of the environment variable.
+          value:
+            type: str
+            required: true
+            description: Value of the environment variable.
+
+      firefox_profile_config_path:
+        type: str
+        default: "{{ firefox_config_dir }}/profiles.ini"
+        description: Path to the Firefox profiles.ini file.
+
+      firefox_profile_name:
+        type: str
+        default: "Default"
+        description: Name of the Firefox profile to manage.
+
+      firefox_profile_dir:
+        type: str
+        default: "{{ firefox_profile_name | lower }}"
+        description: Directory name of the managed Firefox profile.
+
+      firefox_profile_user_prefs:
+        type: list
+        elements: dict
+        default: []
+        description: List of user preference overrides written to user.js.
+        options:
+          name:
+            type: str
+            required: true
+            description: Name of the preference (e.g. "browser.fullscreen.autohide").
+          value:
+            type: str
+            required: true
+            description: Value of the preference.
+
+      firefox_policies_dir:
+        type: str
+        default: "/etc/firefox/policies"
+        description: System-wide directory for Firefox enterprise policies.
+
+      firefox_extensions:
+        type: list
+        elements: dict
+        default: []
+        description: List of extensions to manage via enterprise policy.
+        options:
+          id:
+            type: str
+            required: true
+            description: Extension ID (e.g. "uBlock0@raymondhill.net").
+          mode:
+            type: str
+            default: "force_installed"
+            choices:
+              - force_installed
+              - normal_installed
+              - allowed
+              - blocked
+            description: Installation mode for the extension.
+          url:
+            type: str
+            description: URL the extension is installed from.
+
+      firefox_extensions_lockdown:
+        type: bool
+        default: false
+        description: Block installation of any extension not listed in firefox_extensions.
+
+      firefox_certificates:
+        type: list
+        elements: dict
+        default: []
+        description: List of trusted certificates to install system-wide.
+        options:
+          name:
+            type: str
+            required: true
+            description: Unique name for the certificate.
+          content:
+            type: str
+            required: true
+            description: Base64-encoded DER certificate content.
+
+      firefox_certificates_dir:
+        type: str
+        default: "/etc/firefox/certificates"
+        description: >-
+          Directory containing managed trusted certificates. Unlisted *.pem files in this
+          directory are removed.
+
+      firefox_managed_bookmarks_folder:
+        type: str
+        default: "Managed bookmarks"
+        description: Name of the top-level managed bookmarks folder.
+
+      firefox_managed_bookmarks:
+        type: list
+        elements: dict
+        default: []
+        description: List of managed bookmarks (and nested folders) enforced via enterprise policy.
+        options:
+          name:
+            type: str
+            required: true
+            description: Name of the bookmark or folder.
+          url:
+            type: str
+            description: URL of the bookmark. Omit for folders.
+          children:
+            type: list
+            elements: dict
+            description: Nested bookmarks or folders.
+
+      firefox_bookmarks_toolbar_display:
+        type: str
+        default: ""
+        choices:
+          - ""
+          - "always"
+          - "never"
+          - "newtab"
+        description: Controls visibility of the bookmarks toolbar for managed bookmarks.
